@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<title></title>
+	<meta name="generator" content="LibreOffice 24.8.4.2 (Linux)"/>
+	<meta name="created" content="00:00:00"/>
+	<meta name="changed" content="00:00:00"/>
+	<style type="text/css">
+		@page { size: 8.27in 11.69in; margin: 0.79in }
+		p { line-height: 115%; margin-bottom: 0.1in; background: transparent }
+		pre { font-family: "Liberation Mono", monospace; font-size: 10pt; background: transparent }
+	</style>
+</head>
+<body lang="en-US" link="#000080" vlink="#800000" dir="ltr"><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;title&gt;Theo's MECAR Scrambler&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: monospace;
+      background: #111;
+      color: #0f0;
+      padding: 20px;
+    }
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      margin-right: 10px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0f0;
+      color: #111;
+    }
+    #comboList {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 10px;
+      padding: 10px;
+      background: #222;
+      border: 1px solid #0f0;
+      white-space: pre-wrap;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;h1&gt;Theo's MECAR Scrambler&lt;/h1&gt;
+
+&lt;pre id=&quot;output&quot;&gt;Click &quot;Scramble!&quot; to start.&lt;/pre&gt;
+&lt;button onclick=&quot;scramble()&quot;&gt;Scramble!&lt;/button&gt;
+&lt;button onclick=&quot;showCombos()&quot;&gt;Show All Combinations&lt;/button&gt;
+
+&lt;div id=&quot;comboList&quot; style=&quot;display:none;&quot;&gt;&lt;/div&gt;
+
+&lt;script&gt;
+const letters = ['M', 'E', 'C', 'A', 'R'];
+
+function shuffle(array) {
+  let a = array.slice();
+  for (let i = a.length - 1; i &gt; 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function scramble() {
+  const word = shuffle(letters);
+  const dir = Math.random() &lt; 0.5 ? 'left' : 'right';
+  const chunkSize = Math.floor(Math.random() * 3) + 1;
+
+  const maxStart = word.length - chunkSize;
+  const startIndex = Math.floor(Math.random() * (maxStart + 1));
+  const chunk = word.slice(startIndex, startIndex + chunkSize);
+  let current = word.slice();
+  let steps = [current.join('')];
+
+  while (true) {
+    let idx = current.join('').indexOf(chunk.join(''));
+    if (dir === 'left') {
+      if (idx === 0) break;
+      current.splice(idx - 1, 0, ...chunk);
+      current.splice(idx + chunk.length, chunk.length);
+    } else {
+      if (idx + chunk.length &gt;= current.length) break;
+      current.splice(idx + chunk.length + 1, 0, ...chunk);
+      current.splice(idx, chunk.length);
+    }
+    steps.push(current.join(''));
+  }
+
+  document.getElementById('output').textContent =
+    `Start word: ${word.join('')}\nChunk: ${chunk.join('')} (size ${chunkSize})\nDirection: ${dir.toUpperCase()}\n\n` +
+    steps.join('\n');
+}
+
+// Generate all permutations of MECAR
+function permute(arr) {
+  if (arr.length === 1) return [arr];
+  let perms = [];
+  for (let i = 0; i &lt; arr.length; i++) {
+    let current = arr[i];
+    let remaining = arr.slice(0, i).concat(arr.slice(i + 1));
+    for (let p of permute(remaining)) {
+      perms.push([current].concat(p));
+    }
+  }
+  return perms;
+}
+
+function showCombos() {
+  const allPerms = permute(letters).map(p =&gt; p.join(''));
+  const list = allPerms.join('\n');
+  const box = document.getElementById('comboList');
+  box.style.display = 'block';
+  box.textContent = `All 120 MECAR Combos:\n\n${list}`;
+}
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+</body>
+</html>
