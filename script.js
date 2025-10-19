@@ -5,33 +5,39 @@ const allWordsList = document.getElementById('allWords');
 const toggleAllButton = document.getElementById('toggleAll');
 const allWordsSection = document.getElementById('allWordsSection');
 
-// Generate all permutations of a given string
-function getPermutations(str) {
+let dictionary = new Set(); // Local word list
+
+// Load words.txt into the dictionary set
+async function loadWordList() {
+  try {
+    const response = await fetch('words.txt');
+    const text = await response.text();
+    const words = text.split('\n').map(w => w.trim().toLowerCase());
+    dictionary = new Set(words);
+    console.log(`Loaded ${dictionary.size} words.`);
+  } catch (err) {
+    console.error('Failed to load dictionary:', err);
+  }
+}
+
+// Generate all subwords from given letters
+function getAllCombinations(letters) {
   let results = new Set();
 
-  function permute(prefix, rest) {
-    if (prefix.length > 1) results.add(prefix);
-    for (let i = 0; i < rest.length; i++) {
-      permute(prefix + rest[i], rest.slice(0, i) + rest.slice(i + 1));
+  function combine(prefix, remaining) {
+    if (prefix.length >= 2) {
+      results.add(prefix);
+    }
+    for (let i = 0; i < remaining.length; i++) {
+      combine(prefix + remaining[i], remaining.slice(0, i) + remaining.slice(i + 1));
     }
   }
 
-  permute('', str);
+  combine('', letters);
   return Array.from(results);
 }
 
-// Check if a word is valid using dictionaryapi.dev
-async function isValidWord(word) {
-  try {
-    const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-    return response.ok;
-  } catch (err) {
-    console.error('Error checking word:', word, err);
-    return false;
-  }
-}
-
-scrambleButton.addEventListener('click', async () => {
+scrambleButton.addEventListener('click', () => {
   const letters = input.value.trim().toLowerCase();
   if (!letters || letters.length < 2) {
     alert('Please enter at least 2 letters.');
@@ -40,27 +46,27 @@ scrambleButton.addEventListener('click', async () => {
 
   validWordsList.innerHTML = '';
   allWordsList.innerHTML = '';
-  const permutations = getPermutations(letters);
 
-  // Show all permutations (optional view)
-  permutations.forEach(word => {
+  const allCombos = getAllCombinations(letters);
+
+  // Display all generated subwords
+  allCombos.forEach(word => {
     const li = document.createElement('li');
     li.textContent = word;
     allWordsList.appendChild(li);
   });
 
-  // Check each permutation
-  const validWords = [];
-  for (const word of permutations) {
-    if (await isValidWord(word)) {
-      validWords.push(word);
+  // Filter and display valid words from the dictionary
+  const validWords = allCombos.filter(word => dictionary.has(word));
+
+  if (validWords.length > 0) {
+    validWords.sort((a, b) => a.length - b.length); // optional sorting by length
+    validWords.forEach(word => {
       const li = document.createElement('li');
       li.textContent = word;
       validWordsList.appendChild(li);
-    }
-  }
-
-  if (validWords.length === 0) {
+    });
+  } else {
     validWordsList.innerHTML = '<li>No valid words found.</li>';
   }
 });
