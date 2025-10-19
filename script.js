@@ -6,19 +6,18 @@ const toggleAllButton = document.getElementById('toggleAll');
 const allWordsSection = document.getElementById('allWordsSection');
 
 let dictionary = new Set(); // Local word list
-
-// Load words.txt into the dictionary set
+// Load words from words.json (JSON array of words)
 async function loadWordList() {
   try {
-    const response = await fetch('words.txt');
-    const text = await response.text();
-    const words = text.split('\n').map(w => w.trim().toLowerCase());
-    dictionary = new Set(words);
-    console.log(`Loaded ${dictionary.size} words.`);
+    const response = await fetch('words.json');
+    const words = await response.json(); // <-- parse JSON
+    dictionary = new Set(words.map(w => w.trim().toLowerCase()));
+    console.log(`✅ Loaded ${dictionary.size} words from local dictionary`);
   } catch (err) {
-    console.error('Failed to load dictionary:', err);
+    console.error('❌ Failed to load dictionary:', err);
   }
 }
+
 
 // Generate all subwords from given letters
 function getAllCombinations(letters) {
@@ -81,3 +80,7 @@ toggleAllButton.addEventListener('click', () => {
     toggleAllButton.textContent = 'Show All Permutations';
   }
 });
+
+// Load dictionary as soon as script runs
+loadWordList();
+
