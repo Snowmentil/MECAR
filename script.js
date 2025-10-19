@@ -9,7 +9,7 @@ let dictionary = new Set(); // Local word list
 // Load words from words.json (JSON array of words)
 async function loadWordList() {
   try {
-    const response = await fetch('words.json');
+    const response = await fetch('words.txt');
     const words = await response.json(); // <-- parse JSON
     dictionary = new Set(words.map(w => w.trim().toLowerCase()));
     console.log(`✅ Loaded ${dictionary.size} words from local dictionary`);
