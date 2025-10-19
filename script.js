@@ -10,7 +10,7 @@ let dictionary = new Set(); // Local word list
 async function loadWordList() {
   try {
     console.log('Trying to load dictionary...');
-    const response = await fetch('words.txt');
+    const response = await fetch('words.json');
     const words = await response.json(); // <-- parse JSON
     dictionary = new Set(words.map(w => w.trim().toLowerCase()));
     console.log(`✅ Loaded ${dictionary.size} words from local dictionary`);
@@ -20,7 +20,7 @@ async function loadWordList() {
     const text = await response.text();
     const words = text.split('\n').map(w => w.trim().toLowerCase()).filter(Boolean);
     dictionary = new Set(words);
-    console.log(`✅ Loaded ${dictionary.size} words from words.txt`);
+    console.log(`✅ Loaded ${dictionary.size} words from words.json`);
   } catch (err) {
     console.error('❌ Failed to load dictionary:', err);
   }
