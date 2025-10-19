@@ -11,6 +11,9 @@ async function loadWordList() {
   try {
     console.log('Trying to load dictionary...');
     const response = await fetch('words.txt');
+    const words = await response.json(); // <-- parse JSON
+    dictionary = new Set(words.map(w => w.trim().toLowerCase()));
+    console.log(`✅ Loaded ${dictionary.size} words from local dictionary`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
